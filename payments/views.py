@@ -3,22 +3,21 @@ import stripe
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect, HttpResponsePermanentRedirect
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
-from djstripe.settings import STRIPE_PUBLIC_KEY, STRIPE_SECRET_KEY
+from djstripe.settings import STRIPE_PUBLIC_KEY_USD, STRIPE_SECRET_KEY_USD, STRIPE_PUBLIC_KEY_EUR, STRIPE_SECRET_KEY_EUR
 
 from .models import Item, Order
-
-stripe.api_key = STRIPE_SECRET_KEY
 
 
 def buy_view(request, item_id: int) -> JsonResponse:
     """Get a Stripe Session Id to pay for the selected Item."""
     item = get_object_or_404(Item, pk=item_id)
+    stripe.api_key = STRIPE_SECRET_KEY_USD if item.currency == 'USD' else STRIPE_SECRET_KEY_EUR
     session = stripe.checkout.Session.create(
         payment_method_types=['card'],
         line_items=[
             {
                 'price_data': {
-                    'currency': 'usd',
+                    'currency': item.currency.lower(),
                     'unit_amount': int(item.price * 100),
                     'product_data': {
                         'name': item.name,
@@ -38,7 +37,8 @@ def buy_view(request, item_id: int) -> JsonResponse:
 def item_view(request, item_id: int) -> HttpResponse:
     """Get information about the selected Item."""
     item = get_object_or_404(Item, pk=item_id)
-    return render(request, 'item.html', {'item': item, 'stripe_public_key': STRIPE_PUBLIC_KEY})
+    stripe_public_key = STRIPE_PUBLIC_KEY_USD if item.currency == 'USD' else STRIPE_PUBLIC_KEY_EUR
+    return render(request, 'item.html', {'item': item, 'stripe_public_key': stripe_public_key})
 
 
 def buy_order_view(request, item_id: int) -> HttpResponseRedirect | HttpResponsePermanentRedirect:
@@ -56,7 +56,7 @@ def buy_order_view(request, item_id: int) -> HttpResponseRedirect | HttpResponse
 def checkout_view(request) -> HttpResponse:
     """Checkout."""
     session_id = request.GET.get('session_id')
-    return render(request, 'checkout.html', {'session_id': session_id, 'stripe_public_key': STRIPE_PUBLIC_KEY})
+    return render(request, 'checkout.html', {'session_id': session_id, 'stripe_public_key': STRIPE_PUBLIC_KEY_USD})
 
 
 def success_view(request, order_id: int) -> HttpResponse:
