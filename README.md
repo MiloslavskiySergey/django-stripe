@@ -10,7 +10,7 @@
 
 | Зависимость                                            | Версия |
 | ------------------------------------------------------ | ------ |
-| [Python](https://www.python.org/downloads/)            | 3.10   |
+| [Python](https://www.python.org/downloads/)            | 3.11   |
 | [Poetry](https://python-poetry.org/docs/#installation) | latest |
 
 1. Создать `.env` файл.
