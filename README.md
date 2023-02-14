@@ -56,7 +56,3 @@ docker build -t myimage .
 docker run -p 8000:8000 myimage
 ```
 
-## Бонусные задачи:
-
-- [ ] Добавить поле Item.currency, создать 2 Stripe Keypair на две разные валюты и в зависимости от валюты выбранного товара предлагать оплату в соответствующей валюте
-- [ ] Реализовать не Stripe Session, а Stripe Payment Intent.
